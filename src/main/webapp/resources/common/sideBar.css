@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+aside {
+    box-sizing: border-box;
+    padding: 5px;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    width: 120px;
+    height: calc(100vh - 100px);
+}

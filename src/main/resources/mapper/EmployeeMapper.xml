@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.personal.employee.mapper.EmployeeMapper">
+    <select id="employee_search_count" parameterType="EmpSearchVO" resultType="int">
+        select count(*) from employees
+        <where>
+          <if test="emp_name != ''">
+            emp_name LIKE CONCAT('%', #{emp_name}, '%')
+		      </if>
+          <if test="fieldCD != ''">
+           and fieldCD = #{fieldCD}
+		      </if>
+          <if test="classCD != ''">
+           and classCD = #{classCD}
+		      </if>
+          <if test="lebelCD != ''">
+           and lebelCD = #{lebelCD}
+		      </if>
+          <if test="employment_statusCD != ''">
+           and employment_statusCD = #{employment_statusCD}
+		      </if>
+          <if test="s_start_date != ''">
+           and start_date <![CDATA[>=]]> #{s_start_date}
+          </if>
+          <if test="e_start_date != ''">
+            and start_date <![CDATA[<=]]> #{e_start_date}
+		      </if>
+          <if test="s_last_date != ''">
+           and last_date <![CDATA[>=]]> #{s_last_date}
+		      </if>
+          <if test="e_last_date != ''">
+           and last_date <![CDATA[<=]]> #{e_last_date}
+		      </if>
+        </where>
+    </select>
+    <select id="employee_search" parameterType="EmpSearchVO" resultType="EmployeeVO">
+        select * from employees
+        <where>
+          <if test="emp_name != ''">
+            emp_name LIKE CONCAT('%', #{emp_name}, '%')
+		      </if>
+          <if test="fieldCD != ''">
+           and fieldCD = #{fieldCD}
+		      </if>
+          <if test="classCD != ''">
+           and classCD = #{classCD}
+		      </if>
+          <if test="lebelCD != ''">
+           and lebelCD = #{lebelCD}
+		      </if>
+          <if test="employment_statusCD != ''">
+           and employment_statusCD = #{employment_statusCD}
+		      </if>
+          <if test="s_start_date != ''">
+           and start_date <![CDATA[>=]]> #{s_start_date}
+          </if>
+          <if test="e_start_date != ''">
+            and start_date <![CDATA[<=]]> #{e_start_date}
+		      </if>
+          <if test="s_last_date != ''">
+           and last_date <![CDATA[>=]]> #{s_last_date}
+		      </if>
+          <if test="e_last_date != ''">
+           and last_date <![CDATA[<=]]> #{e_last_date}
+		      </if>
+        </where>
+        limit #{limit}
+        offset #{offset}
+    </select>
+
+    <select id="employee_detail_info" parameterType="String" resultType="EmployeeVO">
+      select * from employees
+      where emp_idx = #{emp_idx}
+    </select>
+    <select id="employee_detail_skill" parameterType="String" resultType="SkillVO">
+      select * from employee_skill
+      where emp_idx = #{emp_idx}
+    </select>
+
+    <select id="empProCus_list" parameterType="String" resultType="ProEmpCusVO">
+      select * from customer_project_employee_view
+      where emp_idx = #{emp_idx}
+    </select>
+
+    <!-- <resultMap id="EmpProResultMap" type="ProEmpVO">
+      <id property="pe_idx" column="pe_idx"/>
+      <result property="project_idx" column="project_idx"/>
+      <result property="emp_idx" column="emp_idx"/>
+      <result property="in_date" column="in_date"/>
+      <result property="out_date" column="out_date"/>
+      <result property="roleCD" column="roleCD"/>
+      <result property="scoreCD" column="scoreCD"/>
+      <result property="statusCD" column="statusCD"/>
+      <result property="note" column="note"/>
+      
+      <association property="projectVO" javaType="ProjectVO" 
+      select="empProReMap" column="project_idx"/>
+    </resultMap>
+
+  <select id="empPro_list" parameterType="String" resultMap="EmpProResultMap">
+    select * from project_employee where emp_idx = #{emp_idx}
+  </select>
+  <select id="empProReMap" parameterType="String" resultType="ProjectVO">
+    select * from projects where project_idx = #{project_idx}
+  </select> -->
+
+</mapper>
