@@ -34,6 +34,7 @@
           <if test="e_last_date != ''">
            and last_date <![CDATA[<=]]> #{e_last_date}
 		      </if>
+          and statusCD = 'A2'
         </where>
     </select>
     <select id="employee_search" parameterType="EmpSearchVO" resultType="EmployeeVO">
@@ -66,6 +67,7 @@
           <if test="e_last_date != ''">
            and last_date <![CDATA[<=]]> #{e_last_date}
 		      </if>
+          and statusCD = 'A2'
         </where>
         limit #{limit}
         offset #{offset}
@@ -82,8 +84,43 @@
 
     <select id="empProCus_list" parameterType="String" resultType="ProEmpCusVO">
       select * from customer_project_employee_view
-      where emp_idx = #{emp_idx}
+      where emp_idx = #{emp_idx} and statusCD = 'A2'
     </select>
+
+    <insert id="emp_insert" parameterType="EmployeeVO">
+      <selectKey keyProperty="emp_idx" resultType="String" order="AFTER">
+        SELECT LAST_INSERT_ID()
+      </selectKey>
+      insert into employees (emp_name,f_resident_num,b_resident_num,phone,f_email,
+      image,zip_code,main_adress,detail_adress,extra_adress,start_date,last_date,
+      fieldCD,agreementCD,classCD,lebelCD,employment_statusCD,genderCD,e_emailCD,note)
+      values (#{emp_name}, #{f_resident_num}, #{b_resident_num}, #{phone}, #{f_email}, 
+      #{image}, #{zip_code}, #{main_adress}, #{detail_adress}, #{extra_adress},
+      <if test="start_date != null and start_date != ''">#{start_date}</if>
+      <if test="start_date == null or start_date == ''">NULL</if>,
+      <if test="last_date != null and last_date != ''">#{last_date}</if>
+      <if test="last_date == null or last_date == ''">NULL</if>,
+      #{fieldCD}, #{agreementCD}, #{classCD}, #{lebelCD},
+      #{employment_statusCD}, #{genderCD}, #{e_emailCD}, #{note})
+    </insert>
+
+    <insert id="emp_insert_skill" parameterType="Map">
+      insert into employee_skill (emp_idx, skillCD)
+      values
+      <foreach collection="skill_list" item="skill" separator=",">
+        (#{emp_idx}, #{skill})
+      </foreach>
+    </insert>
+
+    <!-- 사원 여러명 삭제 -->
+    <update id="emp_delete" parameterType="List">
+      UPDATE employees 
+      set statusCD = 'A1'
+      where
+      <foreach collection="list" item="emp_idx" separator=" or">
+        emp_idx = #{emp_idx}
+      </foreach>
+    </update>
 
     <!-- <resultMap id="EmpProResultMap" type="ProEmpVO">
       <id property="pe_idx" column="pe_idx"/>

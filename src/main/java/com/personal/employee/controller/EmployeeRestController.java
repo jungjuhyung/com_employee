@@ -1,6 +1,7 @@
 package com.personal.employee.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.personal.employee.common.Paging;
 import com.personal.employee.service.CodeManagerService;
@@ -16,17 +17,20 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
+import java.io.File;
 
 @RestController
 public class EmployeeRestController {
-
+    
     @Autowired
     EmployeeService employeeService;
 
@@ -63,7 +67,7 @@ public class EmployeeRestController {
 		paging.setTotalRecord(count);
 		
 		// 전체 페이지의 수
-		if (paging.getTotalRecord() < paging.getNumPerPage()) {
+		if (paging.getTotalRecord() <= paging.getNumPerPage()) {
 			paging.setTotalPage(1);
 		} else {
 			paging.setTotalPage(paging.getTotalRecord() / paging.getNumPerPage());
@@ -107,6 +111,7 @@ public class EmployeeRestController {
         res.put("paging", paging);
         return ResponseEntity.ok(res);
     }
+
     @PostMapping("empProCus_list")
     public ResponseEntity<?> search(@RequestBody EmpDetailVO empDetailVO) {
         List<CodeVO> code_list = codeManagerService.lodeCode();
@@ -115,5 +120,59 @@ public class EmployeeRestController {
             k.setCodeName(code_list);
         }
         return ResponseEntity.ok(empProCus_list);
+    }
+
+    @PostMapping("emp_insert")
+    public ResponseEntity<?> emp_insert(@ModelAttribute EmployeeVO employeeVO, HttpSession session) {
+        String path = session.getServletContext().getRealPath("/resources/employee_image");
+        if (employeeVO.getImg_file() != null) {
+            MultipartFile img_file = employeeVO.getImg_file();
+            if (img_file.isEmpty()) {
+                employeeVO.setImage("default.png");
+            } else {
+                UUID uuid = UUID.randomUUID();
+                String img_name = uuid.toString() + "_" + img_file.getOriginalFilename();
+                employeeVO.setImage(img_name);
+                try {
+                    File dir = new File(path);
+                    if (!dir.exists()) {
+                        dir.mkdirs();
+                    }
+                    File out = new File(path, img_name);
+                    byte[] in = img_file.getBytes();
+                    FileCopyUtils.copy(in, out);
+                } catch (Exception e) {
+                    employeeVO.setImage("default.png");
+                }
+            }
+        } else {
+            employeeVO.setImage("default.png");
+        }
+        employeeVO.setPhone(employeeVO.getF_phone()+"-"+employeeVO.getM_phone()+"-"+employeeVO.getE_phone());
+        int insert_res = employeeService.emp_insert(employeeVO);
+        
+        if (employeeVO.getSkill_list().size() > 0) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("emp_idx", employeeVO.getEmp_idx());
+            map.put("skill_list", employeeVO.getSkill_list());
+            int insert_skill_res = employeeService.emp_insert_skill(map);
+        }
+        
+        if (insert_res > 0) {
+            System.out.println("selectkey : "+employeeVO.getEmp_idx());
+            return ResponseEntity.ok(employeeVO.getEmp_idx());
+        }else{
+            return ResponseEntity.ok(null);
+        }
+    }
+
+    @PostMapping("emp_delete")
+    public ResponseEntity<?> emp_delete(@RequestBody List<String> delete_emp_list) {
+        int delete_res = employeeService.emp_delete(delete_emp_list);
+        if (delete_res > 0) {
+            return ResponseEntity.ok(delete_res);
+        }else{
+            return ResponseEntity.ok(0);
+        }
     }
 }

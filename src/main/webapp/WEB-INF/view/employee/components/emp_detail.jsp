@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <script>
-            empPro_data={
+            let empPro_data={
                 "emp_idx":"${eivo.emp_idx}"
             }
             function detail_ajax(option){
@@ -15,7 +15,6 @@
                 }else{
                     data["option"] = option
                 }
-                console.log(option)
                 $.ajax({
                     type: "post",
                     url: "empProCus_list",
@@ -85,6 +84,10 @@
                 </div>
             </article>
             <article>
+                <input type="button" name="update_emp_detail_btn" id="update_emp_detail_btn" value="수정" onclick="update_emp_detail('${eivo.emp_idx}')">
+                <input type="button" name="delete_emp_detail_btn" id="delete_emp_detail_btn" value="삭제" onclick="delete_emp_detail('${eivo.emp_idx}')">
+            </article>
+            <article>
                 <table>
                     <thead>
                         <tr>
@@ -102,7 +105,22 @@
                     </thead>
                     <tbody id="empPro_area"></tbody>
                 </table>
+                <input type="button" name="management_project" id="management_project_btn" value="프로젝트 관리" onclick="management_project('${eivo.emp_idx}')">
             </article>
         </section>
+        <script>
+            function delete_emp_detail(emp_idx){
+                let deleteChk = confirm("정말 삭제하시겠습니까?");
+                    if (deleteChk) {
+                        let delete_emp_detail = [emp_idx]
+                        delete_emp_ajax(delete_emp_detail)
+                        $(".dl_area").remove()
+                        $(".dl_box").remove()
+                    } else {
+                        alert("삭제가 취소되었습니다.")
+                        return
+                    }
+            }
+        </script>
     </body>
-</html>
+    </html>

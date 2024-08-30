@@ -8,7 +8,6 @@ import com.personal.employee.service.CodeManagerService;
 import com.personal.employee.service.EmployeeService;
 import com.personal.employee.vo.CodeVO;
 import com.personal.employee.vo.EmployeeVO;
-import com.personal.employee.vo.ProEmpCusVO;
 import com.personal.employee.vo.SkillVO;
 
 import jakarta.servlet.http.HttpServletRequest;

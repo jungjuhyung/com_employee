@@ -10,6 +10,7 @@ import com.personal.employee.vo.ProEmpCusVO;
 import com.personal.employee.vo.SkillVO;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmployeeService {
@@ -30,5 +31,14 @@ public class EmployeeService {
     }
     public List<ProEmpCusVO> empProCus_list(String emp_idx) {
         return employeeMapper.empProCus_list(emp_idx);
+    }
+    public int emp_insert(EmployeeVO employeeVO) {
+        return employeeMapper.emp_insert(employeeVO);
+    }
+    public int emp_insert_skill(Map<String, Object> map) {
+        return employeeMapper.emp_insert_skill(map);
+    }
+    public int emp_delete(List<String> delete_emp_list) {
+        return employeeMapper.emp_delete(delete_emp_list);
     }
 }

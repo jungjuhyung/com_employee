@@ -113,19 +113,19 @@
                     입사일
                     <c:choose>
                         <c:when test="${emp_opt != null}}" >
-                            <input type="date" name="s_start_date" id="start_date" value="${emp_opt.s_start_date}">
+                            <input type="date" name="s_start_date" id="start_date" value="${emp_opt.s_start_date}" min="0000-01-01" max="9999-12-31">
                         </c:when>
                         <c:otherwise>
-                            <input type="date" name="s_start_date" id="start_date" value="">
+                            <input type="date" name="s_start_date" id="start_date" value="" min="0000-01-01" max="9999-12-31">
                         </c:otherwise>
                     </c:choose>
                     <span>~</span>
                     <c:choose>
                         <c:when test="${emp_opt != null}}" >
-                            <input type="date" name="e_start_date" id="start_date" value="${emp_opt.e_start_date}">
+                            <input type="date" name="e_start_date" id="start_date" value="${emp_opt.e_start_date}" min="0000-01-01" max="9999-12-31">
                         </c:when>
                         <c:otherwise>
-                            <input type="date" name="e_start_date" id="start_date" value="">
+                            <input type="date" name="e_start_date" id="start_date" value="" min="0000-01-01" max="9999-12-31">
                         </c:otherwise>
                     </c:choose>
                 </label>
@@ -134,28 +134,28 @@
                     퇴사일
                     <c:choose>
                         <c:when test="${emp_opt != null}}" >
-                            <input type="date" name="s_last_date" id="last_date" value="${emp_opt.s_last_date}">
+                            <input type="date" name="s_last_date" id="last_date" value="${emp_opt.s_last_date}" min="0000-01-01" max="9999-12-31">
                         </c:when>
                         <c:otherwise>
-                            <input type="date" name="s_last_date" id="last_date" value="">
+                            <input type="date" name="s_last_date" id="last_date" value="" min="0000-01-01" max="9999-12-31">
                         </c:otherwise>
                     </c:choose>
                     <span>~</span>
                     <c:choose>
                         <c:when test="${emp_opt != null}}" >
-                            <input type="date" name="e_last_date" id="last_date" value="${emp_opt.e_last_date}">
+                            <input type="date" name="e_last_date" id="last_date" value="${emp_opt.e_last_date}"  min="0000-01-01" max="9999-12-31">
                         </c:when>
                         <c:otherwise>
-                            <input type="date" name="e_last_date" id="last_date" value="">
+                            <input type="date" name="e_last_date" id="last_date" value="" min="0000-01-01" max="9999-12-31">
                         </c:otherwise>
                     </c:choose>
                 </label>
             </div>
             <input type="button" value="검색" onclick="search(this.form)">
-            <input type="button" value="검색 초기화" onclick="reset(this.form)">
+            <input type="button" value="검색 초기화" onclick="reset_form(this.form)">
         </form>
         <input type="button" value="사원 등록" onclick="insert_emp()">
-        <div>
+        <div id="search_res_area">
             <div id="select_area"></div>
             <table>
                 <thead>
@@ -171,12 +171,13 @@
                         <th>관리</th>
                     </tr>
                 </thead>
-                <tbody id="search_area">
+                <tbody id="search_tbody">
                     <tr>
                         <td colspan="5">검색해주세요</td>
                     </tr>
                 </tbody>
             </table>
+            <input type="button" value="삭제하기" onclick="delete_emp()">
             <div id="paging_area"">
             </div>
         </div>
@@ -184,6 +185,7 @@
             let data = {
             };
 
+            // 검색 ajax
             function search_ajax(cpage_v){
                 if(typeof cpage_v =="undefined"){
                     data["cpage"] = null
@@ -197,7 +199,7 @@
                     data: JSON.stringify(data),
                     dataType: "json",
                     success: function (res) {
-                        let tbody = $("#search_area")
+                        let tbody = $("#search_tbody")
                         let paging_area = $("#paging_area")
                         paging_area.empty()
                         tbody.empty()
@@ -209,9 +211,9 @@
                             tr.append($("<td>").text(k.class_d));
                             tr.append($("<td>").text(k.lebel));
                             tr.append($("<td>").text(k.employment_status));
-                            tr.append($("<td>").text(k.start_date.substring(0,10)));
+                            tr.append($("<td>").text(k.start_date));
                             if(k.last_date != null){
-                                tr.append($("<td>").text(k.last_date.substring(0,10)));
+                                tr.append($("<td>").text(k.last_date));
                                 }else{
                                 tr.append($("<td>").text("-"));
                             }
@@ -228,10 +230,12 @@
                 });
             }
             
+            // 처음 입장 세션값 확인
             if("${emp_search}"=='true'){
-                console.log("확인")
                 search_ajax();
             }
+
+            // 개수 select태그 생성 함수
             function select(sel){
                 let select_area = $("#select_area");
                 select_area.empty()
@@ -256,6 +260,7 @@
                 select_area.append(select_tag)
             }
 
+            // paging 블록 생성 함수
             function paging(paging){
 
                 let ol =  $("<ol style='width: 300px; display: flex; justify-content: space-around;'>")
@@ -280,6 +285,7 @@
                 return ol;
             }
 
+            // 검색 옵션 데이터 담는 함수
             function search(search_data){
                 const inputs = search_data.querySelectorAll('input');
                 const selects = search_data.querySelectorAll('select');
@@ -298,19 +304,21 @@
                 data["cpage"] = "1";
                 search_ajax();
             }
+
             // 검색 옵션 초기화
-            function reset(search_data){
+            function reset_form(search_data){
                 let inputs = search_data.querySelectorAll('input');
                 let selects = search_data.querySelectorAll('select');
                 
                 inputs.forEach(k => {
                     if (k.name) {
-                        data[k.name] = "";
+                        k.value = "";
                     }
                 });
+                
                 selects.forEach(k => {
                     if (k.name) {
-                        data[k.name] = "";
+                        k.value  = "";
                     }
                 });
             }
@@ -343,9 +351,47 @@
 
             // 정렬 옵션 선택
             function option(value){
-                console.log(value)
                 data["option"] = value;
                 search_ajax();
+            }
+
+            // 검색창 사원 삭제 ajax
+            function delete_emp_ajax(delete_emp_list){
+                $.ajax({
+                    type: "post",
+                    url: "emp_delete",
+                    data: JSON.stringify(delete_emp_list),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function (res) {
+                        search_ajax("1")
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            // 검색창 사원 삭제 함수
+            function delete_emp(){
+                let check_emp =$("#search_tbody").find('input[type="checkbox"]').filter(':checked');
+                let delete_emp_list = []
+                $.each(check_emp, function (idx, k) {
+                    delete_emp_list.push($(k).val())
+                });
+                if(delete_emp_list.length > 0){
+                    let deleteChk = confirm("정말 삭제하시겠습니까?");
+
+                    if (deleteChk) {
+                        delete_emp_ajax(delete_emp_list)
+                    } else {
+                        alert("삭제가 취소되었습니다.")
+                        return
+                    }
+                }else{
+                    alert("삭제할 사원을 체크해주세요")
+                    return
+                }
             }
         </script>
     </body>

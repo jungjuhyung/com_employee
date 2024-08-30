@@ -127,7 +127,7 @@
                     </label>
                     <label for="start_date">
                         입사일
-                        <input type="date" name="start_date" id="start_date" value="">
+                        <input type="date" name="start_date" id="start_date" value="" min="0000-01-01" max="9999-12-31">
                     </label>
                     <label for="">
                         주소
@@ -139,7 +139,7 @@
                     </label>
                     <label for="last_date">
                         퇴사일
-                        <input type="date" name="last_date" value="" id="last_date">
+                        <input type="date" name="last_date" value="" id="last_date" min="0000-01-01" max="9999-12-31">
                     </label>
                     <label for="employment_statusCD">
                         재직 상태
@@ -177,79 +177,123 @@
             <input type="button" value="사원 등록" onclick="emp_insert_go(this)">
         </section>
         <script>
-            emp_insert_data={}
+            // 삽입 함수
+            function insert_ajax(data){
+                for (let pair of data.entries()) {
+                    console.log(pair[0]+ ', '+ pair[1]); 
+                }
+                $.ajax({
+                    type: "post",
+                    url: "emp_insert",
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    dataType: "json",
+                    success: function (res) {
+                        if(res != null){
+                            let dl_area = $(".dl_area");
+                            dl_area.empty()
+                            dl_area.load("/employee/emp_detail",{param: res})
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            // 유효성 검사 및 데이터 담기
             function emp_insert_go(section){
+                let formData = new FormData();
                 let insert_section = $(section).closest('section');
 
-                const input_texts = insert_section.find('input[type="text"]');
-                const input_dates = insert_section.find('input[type="date"]');
-                const checkboxs = insert_section.find('input[type="checkbox"]').filter(':checked');
-                const selects = insert_section.find('select');
+                let input_texts = insert_section.find('input[type="text"]');
+                let input_dates = insert_section.find('input[type="date"]');
+                let checkboxs = insert_section.find('input[type="checkbox"]').filter(':checked');
+                let selects = insert_section.find('select');
+                let input_img = insert_section.find('input[name="img_file"]');
+                let input_note = insert_section.find('textarea[name="note"]');
                 
-                const input_resident = $('input[name="b_resident_num"]');
-                const input_img = $('input[name="img_file"]');
+            
+                let input_name = insert_section.find('input[name="emp_name"]');
+                let input_f_resident_num = insert_section.find('input[name="f_resident_num"]');
+                let input_b_resident_num = insert_section.find('input[name="b_resident_num"]');
+                let input_f_phone = insert_section.find('input[name="f_phone"]');
+                let input_m_phone = insert_section.find('input[name="m_phone"]');
+                let input_e_phone = insert_section.find('input[name="e_phone"]');
+                let input_genderCD = insert_section.find('select[name="genderCD"]');
+
+                if(input_name.val() == ""){
+                    alert("이름을 입력해주세요")
+                    input_name.focus()
+                    return
+                }
+                if(input_genderCD.val() ==  ""){
+                    alert("성별을 선택해주세요")
+                    input_genderCD.focus()
+                    return
+                }
+                if(input_f_resident_num.val() ==  "" || input_f_resident_num.val().length < 6){
+                    alert("주민번호 앞 6자리를 입력해주세요")
+                    input_f_resident_num.focus()
+                    return
+                }
+                if(input_b_resident_num.val() ==  "" || input_b_resident_num.val().length < 7){
+                    alert("주민번호 뒤 7자리를 입력해주세요")
+                    input_f_resident_num.focus()
+                    return
+                }else{
+                    formData.append(input_b_resident_num.attr('name'), $(input_b_resident_num).val());
+                }
+                if(input_f_phone.val() ==  ""){
+                    alert("전화번호 앞자리를 입력해주세요")
+                    input_f_phone.focus()
+                    return
+                }
+                if(input_m_phone.val() ==  ""){
+                    alert("전화번호 중간 자리를 입력해주세요")
+                    input_m_phone.focus()
+                    return
+                }
+                if(input_e_phone.val() ==  ""){
+                    alert("전화번호 뒷자리를 입력해주세요")
+                    input_e_phone.focus()
+                    return
+                }
                 
                 $.each(input_texts, function (idx, k) { 
-                    if ($(k).attr('name') == "emp_name" && $(k).val() == "") {
-                        alert("이름을 입력해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else if($(k).attr('name') == "f_resident_num" && ($(k).val() == "" ||$(k).val().length < 6)){
-                        alert("주민번호 앞 6자리를 입력해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else if($(k).attr('name') == "f_phone" && $(k).val() == ""){
-                        alert("전화번호 앞자리를 입력해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else if($(k).attr('name') == "m_phone" && $(k).val() == ""){
-                        alert("전화번호 중간자리를 입력해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else if($(k).attr('name') == "e_phone" && $(k).val() == ""){
-                        alert("전화번호 뒷자리를 입력해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else{
-                        emp_insert_data[$(k).attr('name')] = $(k).val();
+                    if($(k).attr('name')){
+                        formData.append($(k).attr('name'), $(k).val())
                     }
                 });
-
-                if($(input_resident).attr('name') == "e_resident_num" && ($(input_resident).val() == "" || $(input_resident).val().length < 7)){
-                    alert("주민번호 뒤 7자리를 입력해주세요")
-                    emp_insert_data={}
-                    $(input_resident).focus()
-                    return false
-                }else{
-                    emp_insert_data[$(e_resident_num).attr('name')] = $(e_resident_num).val();
-                }
-
+                
                 $.each(selects, function (idx, k) { 
-                    if ($(k).attr('name') == "genderCD" && $(k).val() == "") {
-                        alert("성별을 선택해주세요")
-                        emp_insert_data={}
-                        $(k).focus()
-                        return false
-                    }else{
-                        emp_insert_data[$(k).attr('name')] = $(k).val();
+                    if($(k).attr('name')){
+                        formData.append($(k).attr('name'), $(k).val())
                     }
                 });
-
-                $.each(checkboxs, function (idx, k) { 
-                    emp_insert_data[$(k).attr('name')] = $(k).val();
+                
+                let chk_val = []
+                $.each(checkboxs, function (idx, k) {
+                    if($(k).attr('name')){
+                        chk_val.push($(k).val())
+                    }
                 });
-
+                formData.append("skill_list",chk_val)
+                
                 $.each(input_dates, function (idx, k) { 
-                    emp_insert_data[$(k).attr('name')] = $(k).val();
+                    if($(k).attr('name')){
+                        formData.append($(k).attr('name'), $(k).val())
+                    }
                 });
-
-                emp_insert_data[$(input_img).attr('name')] = $(input_img).val();
-                console.log("확인")
+                if (input_img[0].files.length > 0) {
+                    formData.append(input_img.attr('name'), input_img[0].files[0]);
+                }
+                formData.append(input_note.attr('name'), input_note.val())
+                for (let pair of formData.entries()) {
+                    console.log(pair[0]+ ', '+ pair[1]); 
+                }
+                insert_ajax(formData)
             }
             
             // 사원 삽입 이미지 초기화
