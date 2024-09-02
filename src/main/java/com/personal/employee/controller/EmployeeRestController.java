@@ -63,6 +63,7 @@ public class EmployeeRestController {
                 paging.setNumPerPage(Integer.parseInt(empSearchVO.getOption()));
             }
         }
+        
         int count = employeeService.employee_search_count(empSearchVO);
 		paging.setTotalRecord(count);
 		
