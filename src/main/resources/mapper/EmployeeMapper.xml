@@ -82,9 +82,17 @@
       where emp_idx = #{emp_idx}
     </select>
 
-    <select id="empProCus_list" parameterType="String" resultType="ProEmpCusVO">
+    <select id="empProCus_list" parameterType="empDetailVO" resultType="ProEmpCusVO">
       select * from customer_project_employee_view
       where emp_idx = #{emp_idx} and statusCD = 'A2'
+      <choose>
+        <when test="option != null">
+          order by ${option}
+        </when>
+        <otherwise>
+          order by p_start_date
+        </otherwise>
+      </choose>
     </select>
 
     <insert id="emp_insert" parameterType="EmployeeVO">
@@ -112,15 +120,200 @@
       </foreach>
     </insert>
 
-    <!-- 사원 여러명 삭제 -->
+    <!-- 사원 여러명 삭제(사원 테이블) -->
     <update id="emp_delete" parameterType="List">
-      UPDATE employees 
+      update employees 
       set statusCD = 'A1'
       where
       <foreach collection="list" item="emp_idx" separator=" or">
         emp_idx = #{emp_idx}
       </foreach>
     </update>
+
+    <!-- 사원 여러명 삭제(스킬 테이블) -->
+    <update id="skill_delete" parameterType="List">
+      update employee_skill 
+      set statusCD = 'A1'
+      where
+      <foreach collection="list" item="emp_idx" separator=" or">
+        emp_idx = #{emp_idx}
+      </foreach>
+    </update>
+
+    <!-- 사원 여러명 삭제(프로젝트별 사원 테이블) -->
+    <update id="empPro_delete" parameterType="List">
+      update project_employee 
+      set statusCD = 'A1'
+      where
+      <foreach collection="list" item="emp_idx" separator=" or">
+        emp_idx = #{emp_idx}
+      </foreach>
+    </update>
+
+    <!-- 프로젝트 별 사원 삭제 -->
+    <update id="management_project_delete" parameterType="List">
+      update project_employee 
+      set statusCD = 'A1'
+      where
+      <foreach collection="list" item="pe_idx" separator=" or">
+        pe_idx = #{pe_idx}
+      </foreach>
+    </update>
+
+    <!-- 프로젝트 별 사원 수정 -->
+    <update id="management_project_update" parameterType="ProEmpCusVO">
+      update project_employee 
+      set 
+      in_date = 
+      <if test="in_date != null and in_date != ''">
+        #{in_date}
+      </if>
+      <if test="in_date == null or in_date == ''">
+        NULL
+      </if>, 
+      out_date = 
+      <if test="out_date != null and out_date != ''">
+        #{out_date}
+      </if>
+      <if test="out_date == null or out_date == ''">
+        NULL
+      </if>,
+      roleCD = #{roleCD},
+      scoreCD = #{scoreCD}
+      note = 
+      <if test="note != null and note != ''">
+        #{note}
+      </if>
+      <if test="note == null or note == ''">
+        NULL
+      </if>
+      where pe_idx = #{pe_idx}
+    </update>
+
+    <!-- 프로젝트 별 사원 프로젝트 추가 -->
+    <insert id="management_project_insert" parameterType="ProEmpCusVO">
+      insert into project_employee (project_idx, emp_idx,in_date,out_date,roleCD,scoreCD)
+      values(#{project_idx},#{emp_idx},
+      <if test="in_date != null and in_date != ''">
+        #{in_date}
+      </if>
+      <if test="out_date == null or out_date == ''">
+        NULL
+      </if>,
+      <if test="out_date != null and out_date != ''">
+        #{out_date}
+      </if>
+      <if test="out_date == null or out_date == ''">
+        NULL
+      </if>,
+        #{roleCD},#{scoreCD})
+    </insert>
+
+    <!-- 사원 정보 수정 -->
+    <update id="emp_update" parameterType="EmployeeVO">
+      update employees 
+      set
+      emp_name = #{emp_name}, f_resident_num = #{f_resident_num}, b_resident_num = #{b_resident_num}, 
+      phone = #{phone}, f_email = #{f_email}, image = #{image}, zip_code = #{zip_code}, 
+      main_adress = #{main_adress}, detail_adress = #{detail_adress}, extra_adress = #{extra_adress}, 
+      start_date = 
+      <if test="start_date != null and start_date != ''">
+        #{start_date}
+      </if>
+      <if test="start_date == null or start_date == ''">
+        NULL
+      </if>, 
+      last_date = 
+      <if test="last_date != null and last_date != ''">
+        #{last_date}
+      </if>
+      <if test="last_date == null or last_date == ''">
+        NULL
+      </if>,
+      fieldCD = #{fieldCD}, agreementCD = #{agreementCD}, classCD = #{classCD}, lebelCD = #{lebelCD},
+      employment_statusCD = #{employment_statusCD}, genderCD = #{genderCD}, e_emailCD = #{e_emailCD}, note = #{note}
+      where emp_idx = #{emp_idx}
+    </update>
+
+    <!-- 사원 스킬 진짜 삭제 -->
+    <delete id="skill_real_delete" parameterType="String">
+      delete from employee_skill
+      where emp_idx = #{emp_idx}
+    </delete>
+    
+    <!-- 사원별 프로젝트 검색 팝업창 카운트 -->
+    <select id="project_pop_search_count" resultType="int">
+      select count(*) from customer_project_view
+      <where>
+        <if test="proSearchVO.project_name != ''">
+          project_name LIKE CONCAT('%', #{proSearchVO.project_name}, '%')
+        </if>
+        <if test="proSearchVO.customer_name != ''">
+          customer_name LIKE CONCAT('%', #{proSearchVO.customer_name}, '%')
+        </if>
+        <if test="proSearchVO.skill_condisionCD != ''">
+         and skill_condisionCD <![CDATA[>=]]> #{proSearchVO.skill_condisionCD}
+        </if>
+        <if test="proSearchVO.project_statusCD != ''">
+         and project_statusCD = #{proSearchVO.project_statusCD}
+        </if>
+        <if test="proSearchVO.s_p_start_date != ''">
+         and start_date <![CDATA[>=]]> #{proSearchVO.s_p_start_date}
+        </if>
+        <if test="proSearchVO.e_p_start_date != ''">
+          and start_date <![CDATA[<=]]> #{proSearchVO.e_p_start_date}
+        </if>
+        <if test="proSearchVO.s_p_last_date != ''">
+         and last_date <![CDATA[>=]]> #{proSearchVO.s_p_last_date}
+        </if>
+        <if test="proSearchVO.e_p_last_date != ''">
+         and last_date <![CDATA[<=]]> #{proSearchVO.e_p_last_date}
+        </if>
+        and statusCD = 'A2'
+        and project_idx not in
+        <foreach item="idx" collection="in_project_list" open="(" separator="," close=")">
+          #{idx}
+        </foreach>
+      </where>
+  </select>
+
+  <!-- 사원별 프로젝트 검색 팝업창 검색 -->
+  <select id="project_pop_search" resultType="ProjectVO">
+      select * from customer_project_view
+      <where>
+        <if test="proSearchVO.project_name != ''">
+          project_name LIKE CONCAT('%', #{proSearchVO.project_name}, '%')
+        </if>
+        <if test="proSearchVO.customer_name != ''">
+          customer_name LIKE CONCAT('%', #{proSearchVO.customer_name}, '%')
+        </if>
+        <if test="proSearchVO.skill_condisionCD != ''">
+         and skill_condisionCD <![CDATA[>=]]> #{proSearchVO.skill_condisionCD}
+        </if>
+        <if test="proSearchVO.project_statusCD != ''">
+         and project_statusCD = #{proSearchVO.project_statusCD}
+        </if>
+        <if test="proSearchVO.s_p_start_date != ''">
+         and start_date <![CDATA[>=]]> #{proSearchVO.s_p_start_date}
+        </if>
+        <if test="proSearchVO.e_p_start_date != ''">
+          and start_date <![CDATA[<=]]> #{proSearchVO.e_p_start_date}
+        </if>
+        <if test="proSearchVO.s_p_last_date != ''">
+         and last_date <![CDATA[>=]]> #{proSearchVO.s_p_last_date}
+        </if>
+        <if test="proSearchVO.e_p_last_date != ''">
+         and last_date <![CDATA[<=]]> #{proSearchVO.e_p_last_date}
+        </if>
+        and statusCD = 'A2'
+        and project_idx not in
+        <foreach item="idx" collection="in_project_list" open="(" separator="," close=")">
+          #{idx}
+        </foreach>
+      </where>
+      limit #{proSearchVO.limit}
+      offset #{proSearchVO.offset}
+  </select>
 
     <!-- <resultMap id="EmpProResultMap" type="ProEmpVO">
       <id property="pe_idx" column="pe_idx"/>

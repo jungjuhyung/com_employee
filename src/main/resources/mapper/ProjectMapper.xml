@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.personal.employee.mapper.ProjectMapper">
+    <!-- 프로젝트 검색 카운트 -->
+    <select id="project_search_count" resultType="int">
+      select count(*) from customer_project_view
+      <where>
+        <if test="project_name != ''">
+          project_name LIKE CONCAT('%', #{project_name}, '%')
+        </if>
+        <if test="customer_name != ''">
+          customer_name LIKE CONCAT('%', #{customer_name}, '%')
+        </if>
+        <if test="skill_condisionCD != ''">
+         and skill_condisionCD <![CDATA[>=]]> #{skill_condisionCD}
+        </if>
+        <if test="project_statusCD != ''">
+         and project_statusCD = #{project_statusCD}
+        </if>
+        <if test="s_p_start_date != ''">
+         and start_date <![CDATA[>=]]> #{s_p_start_date}
+        </if>
+        <if test="e_p_start_date != ''">
+          and start_date <![CDATA[<=]]> #{e_p_start_date}
+        </if>
+        <if test="s_p_last_date != ''">
+         and last_date <![CDATA[>=]]> #{s_p_last_date}
+        </if>
+        <if test="e_p_last_date != ''">
+         and last_date <![CDATA[<=]]> #{e_p_last_date}
+        </if>
+        and statusCD = 'A2'
+      </where>
+  </select>
+
+  <!-- 프로젝트 검색 -->
+  <select id="project_search" resultType="ProjectVO">
+      select * from customer_project_view
+      <where>
+        <if test="project_name != ''">
+          project_name LIKE CONCAT('%', #{project_name}, '%')
+        </if>
+        <if test="customer_name != ''">
+          customer_name LIKE CONCAT('%', #{customer_name}, '%')
+        </if>
+        <if test="skill_condisionCD != ''">
+         and skill_condisionCD <![CDATA[>=]]> #{skill_condisionCD}
+        </if>
+        <if test="project_statusCD != ''">
+         and project_statusCD = #{project_statusCD}
+        </if>
+        <if test="s_p_start_date != ''">
+         and start_date <![CDATA[>=]]> #{s_p_start_date}
+        </if>
+        <if test="e_p_start_date != ''">
+          and start_date <![CDATA[<=]]> #{e_p_start_date}
+        </if>
+        <if test="s_p_last_date != ''">
+         and last_date <![CDATA[>=]]> #{s_p_last_date}
+        </if>
+        <if test="e_p_last_date != ''">
+         and last_date <![CDATA[<=]]> #{e_p_last_date}
+        </if>
+        and statusCD = 'A2'
+      </where>
+      limit #{limit}
+      offset #{offset}
+  </select>
+
+  <select id="project_detail_info" parameterType="String" resultType="ProjectVO">
+    select * from customer_project_view
+    where project_idx = #{project_idx}
+  </select>
+  
+  <select id="project_detail_skill" parameterType="String" resultType="SkillVO">
+    select * from project_skill
+    where project_idx = #{project_idx}
+  </select>
+
+  <select id="proEmpCus_list" parameterType="proDetailVO" resultType="ProEmpCusVO">
+    select * from customer_project_employee_view
+    where project_idx = #{project_idx} and statusCD = 'A2'
+    <choose>
+      <when test="option != null">
+        order by ${option}
+      </when>
+      <otherwise>
+        order by in_date
+      </otherwise>
+    </choose>
+  </select>
+  
+  <select id="customer_pop_search_count" parameterType="cusSearchVO" resultType="int">
+    select count(*) from customers
+    <where>
+      <if test="customer_name != ''">
+        customer_name LIKE CONCAT('%', #{customer_name}, '%')
+      </if>
+      <if test="divisionCD != ''">
+        and divisionCD = #{divisionCD}
+      </if>
+      <if test="sizeCD != ''">
+        and sizeCD = #{sizeCD}
+      </if>
+      <if test="businessCD != ''">
+        and businessCD = #{businessCD}
+      </if>
+      and statusCD = 'A2'
+    </where>
+  </select>
+
+  <!-- 사원별 프로젝트 검색 팝업창 검색 -->
+  <select id="customer_pop_search" parameterType="cusSearchVO" resultType="CustomerVO">
+      select * from customers
+      <where>
+        <if test="customer_name != ''">
+          customer_name LIKE CONCAT('%', #{customer_name}, '%')
+        </if>
+        <if test="divisionCD != ''">
+          and divisionCD = #{divisionCD}
+        </if>
+        <if test="sizeCD != ''">
+          and sizeCD = #{sizeCD}
+        </if>
+        <if test="businessCD != ''">
+          and businessCD = #{businessCD}
+        </if>
+        and statusCD = 'A2'
+      </where>
+      limit #{limit}
+      offset #{offset}
+  </select>
+
+  <insert id="customer_insert_pop" parameterType="customerVO">
+    insert into customers (customer_name,main_num, divisionCD, sizeCD, businessCD, note)
+    values (#{customer_name},#{main_num},#{divisionCD},#{sizeCD},#{businessCD},#{note})
+  </insert>
+
+  <insert id="project_insert" parameterType="ProjectVO">
+    <selectKey keyProperty="project_idx" resultType="String" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into projects (project_name,project_classCD,skill_condisionCD,project_statusCD,
+    p_zip_code,p_main_adress,p_detail_adress,p_extra_adress,rep_pm_name,rep_pm_phone,note,
+    p_start_date,p_last_date)
+    values (#{project_name}, #{project_classCD}, #{skill_condisionCD}, #{project_statusCD}, 
+    #{p_zip_code}, #{p_main_adress}, #{p_detail_adress}, #{p_extra_adress},#{rep_pm_name},#{rep_pm_phone},#{note},
+    <if test="p_start_date != null and p_start_date != ''">#{p_start_date}</if>
+    <if test="p_start_date == null or p_start_date == ''">NULL</if>,
+    <if test="p_last_date != null and p_last_date != ''">#{p_last_date}</if>
+    <if test="p_last_date == null or p_last_date == ''">NULL</if>)
+  </insert>
+
+  <insert id="project_customer_insert" parameterType="ProjectVO">
+    insert into customer_project (customer_idx, project_idx, cp_num)
+    values (#{customer_idx}, #{project_idx},#{cp_num})
+  </insert>
+
+  <insert id="project_insert_skill" parameterType="Map">
+    insert into project_skill (project_idx, skillCD)
+    values
+    <foreach collection="skill_list" item="skill" separator=",">
+      (#{project_idx}, #{skill})
+    </foreach>
+  </insert>
+
+   <!-- 프로젝트 여러개 삭제(프로젝트 테이블) -->
+   <update id="project_delete" parameterType="List">
+    update projects
+    set statusCD = 'A1'
+    where
+    <foreach collection="list" item="project_idx" separator=" or">
+      project_idx = #{project_idx}
+    </foreach>
+  </update>
+
+  <!-- 프로젝트 여러개 삭제(스킬 테이블) -->
+  <update id="project_skill_delete" parameterType="List">
+    update project_skill 
+    set statusCD = 'A1'
+    where
+    <foreach collection="list" item="project_idx" separator=" or">
+      project_idx = #{project_idx}
+    </foreach>
+  </update>
+
+  <!-- 프로젝트 여러개 삭제(프로젝트별 사원 테이블) -->
+  <update id="proEmp_delete" parameterType="List">
+    update project_employee 
+    set statusCD = 'A1'
+    where
+    <foreach collection="list" item="project_idx" separator=" or">
+      project_idx = #{project_idx}
+    </foreach>
+  </update>
+
+  <!-- 프로젝트 여러개 삭제(프로젝트별 고객사 테이블) -->
+  <update id="proCus_delete" parameterType="List">
+    update customer_project 
+    set statusCD = 'A1'
+    where
+    <foreach collection="list" item="project_idx" separator=" or">
+      project_idx = #{project_idx}
+    </foreach>
+  </update>
+  
+</mapper>

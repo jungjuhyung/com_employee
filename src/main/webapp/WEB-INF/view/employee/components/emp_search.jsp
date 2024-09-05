@@ -182,21 +182,21 @@
             </div>
         </div>
         <script>
-            let data = {
+            let emp_data = {
             };
 
             // 검색 ajax
-            function search_ajax(cpage_v){
+            function emp_search_ajax(cpage_v){
                 if(typeof cpage_v =="undefined"){
-                    data["cpage"] = null
+                    emp_data["cpage"] = null
                 }else{
-                    data["cpage"] = cpage_v
+                    emp_data["cpage"] = cpage_v
                 }
                 $.ajax({
                     type: "post",
-                    url: "search",
+                    url: "emp_search",
                     contentType: "application/json",
-                    data: JSON.stringify(data),
+                    data: JSON.stringify(emp_data),
                     dataType: "json",
                     success: function (res) {
                         let tbody = $("#search_tbody")
@@ -222,7 +222,7 @@
                         });
                         paging_area.append(paging(res.paging))
                         select(res.emp_opt.option)
-                        data = {}
+                        emp_data = {}
                     },
                     error: function(error) {
                         console.error('Error:', error);
@@ -232,7 +232,7 @@
             
             // 처음 입장 세션값 확인
             if("${emp_search}"=='true'){
-                search_ajax();
+                emp_search_ajax();
             }
 
             // 개수 select태그 생성 함수
@@ -267,20 +267,20 @@
                 
                 // 이전 블록 버튼
                 paging.beginBlock <= paging.pagePerBlock ? ol.append($("<li class='non_move'>").text("이전")) : 
-                ol.append($("<li class='move_page' onclick='search_ajax("+(paging.beginBlock - paging.pagePerBlock)+")'>").text("이전"))
+                ol.append($("<li class='move_page' onclick='emp_search_ajax("+(paging.beginBlock - paging.pagePerBlock)+")'>").text("이전"))
                 
                 // 페이지 버튼
                 for (let i = paging.beginBlock, len = paging.endBlock; i < len+1; i++) {
                   if(i == paging.nowPage){
                       ol.append($("<li class='now_page'>").text(i))
                   }else{
-                      ol.append($("<li class='next_page' onclick='search_ajax("+i+")'>").text(i))
+                      ol.append($("<li class='next_page' onclick='emp_search_ajax("+i+")'>").text(i))
                   }
                 };
                 
                 // 이후 블록 버튼
                 paging.endBlock >= paging.totalPage ? ol.append($("<li class='non_move'>").text("이후")) : 
-                ol.append($("<li class='move_page' onclick='search_ajax("+(paging.beginBlock + paging.pagePerBlock)+")'>").text("이후"))
+                ol.append($("<li class='move_page' onclick='emp_search_ajax("+(paging.beginBlock + paging.pagePerBlock)+")'>").text("이후"))
                 
                 return ol;
             }
@@ -292,17 +292,16 @@
                 
                 inputs.forEach(k => {
                     if (k.name) {
-                        data[k.name] = k.value;
+                        emp_data[k.name] = k.value;
                     }
                 });
                 selects.forEach(k => {
                     if (k.name) {
-                        console.log(k.value)
-                        data[k.name] = k.value;
+                        emp_data[k.name] = k.value;
                     }
                 });
-                data["cpage"] = "1";
-                search_ajax();
+                emp_data["cpage"] = "1";
+                emp_search_ajax();
             }
 
             // 검색 옵션 초기화
@@ -327,11 +326,7 @@
             function detail_emp(emp_idx){
                 let dl_box = $("<div class='dl_box'>");
                 let dl_area = $("<div class='dl_area'>");
-                dl_box.on('click', function() {
-                    dl_area.remove();
-                    $(this).remove();
-                });
-                dl_area.load("/employee/emp_detail",{param: emp_idx})
+                dl_area.load("/employee/emp_detail?emp_idx="+emp_idx)
                 $("body").append(dl_box);
                 $("body").append(dl_area);
             }
@@ -340,19 +335,15 @@
             function insert_emp(){
                 let dl_box = $("<div class='dl_box'>");
                 let dl_area = $("<div class='dl_area'>");
-                dl_box.on('click', function() {
-                    dl_area.remove();
-                    $(this).remove();
-                });
-                dl_area.load("/employee/emp_insert")
+                dl_area.load("/employee/emp_insert_in")
                 $("body").append(dl_box);
                 $("body").append(dl_area);
             }
 
             // 정렬 옵션 선택
             function option(value){
-                data["option"] = value;
-                search_ajax();
+                emp_data["option"] = value;
+                emp_search_ajax();
             }
 
             // 검색창 사원 삭제 ajax
@@ -364,7 +355,7 @@
                     contentType: "application/json",
                     dataType: "json",
                     success: function (res) {
-                        search_ajax("1")
+                        emp_search_ajax("1")
                     },
                     error: function(error) {
                         console.error('Error:', error);

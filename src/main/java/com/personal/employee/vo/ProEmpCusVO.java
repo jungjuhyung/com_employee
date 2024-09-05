@@ -6,9 +6,9 @@ import java.util.List;
 @Data
 public class ProEmpCusVO {
     private String pe_idx,project_idx,emp_idx,in_date,out_date,
-    note,project_name,start_date,last_date,cp_idx,customer_idx,cp_num,name,emp_name,
-    classCD,lebelCD,roleCD,scoreCD,project_classCD,project_statusCD,statusCD,
-    class_d,lebel,role,score,project_class,project_status,status;
+    note,project_name,p_start_date,p_last_date,cp_idx,customer_idx,cp_num,customer_name,emp_name,
+    classCD,lebelCD,fieldCD,roleCD,scoreCD,project_classCD,project_statusCD,statusCD,
+    class_d,lebel,field,role,score,project_class,project_status,status;
 
 
     public void setCodeName(List<CodeVO> code_list){
@@ -20,6 +20,11 @@ public class ProEmpCusVO {
 
         this.lebel = code_list.stream()
         .filter(k -> k.getGroup_code().equals("EM06") && k.getClassification_code().equals(lebelCD))
+        .map(k -> k.getCode_name())
+        .findFirst().orElse("코드 없음");
+
+        this.field = code_list.stream()
+        .filter(k -> k.getGroup_code().equals("EM05") && k.getClassification_code().equals(fieldCD))
         .map(k -> k.getCode_name())
         .findFirst().orElse("코드 없음");
 

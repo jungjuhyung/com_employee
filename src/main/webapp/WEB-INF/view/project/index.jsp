@@ -12,6 +12,7 @@
         <%-- CSS --%>
         <link rel="stylesheet" type="text/css" href="resources/common/reset.css">
         <link rel="stylesheet" type="text/css" href="resources/common/common_area.css">
+        <link rel="stylesheet" type="text/css" href="resources/common/dark_light.css">
         <script>
         </script>
     </head>
@@ -20,7 +21,7 @@
         <section id="common_area">
             <%@ include file="/WEB-INF/view/common/sideBar.jsp"%>
             <section id=content_area>
-                <h1>프로젝트 에리어</h1>
+                <%@ include file="/WEB-INF/view/project/components/project_search.jsp"%>
             </section>
         </section>
     </body>

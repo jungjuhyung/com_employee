@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -11,14 +12,14 @@
         <section id="insert_sec">
             <article id="emp_res">
                 <div id="emp_img">
-                    <img id="emp_insert_img" src="resources/employee_image/default.png" alt="">
-                    <input type="file" id="insert_img_file" name="img_file" onchange="img_chk(this)">
-                    <input type="button" value="기본사진 설정" onclick="img_reset()">
+                    <img id="emp_insert_img" src="resources/employee_image/${eivo.image}" alt="">
+                    <input type="file" id="insert_img_file" name="img_file" value="" onchange="img_chk(this)">
+                    <input type="button" value="이전 사진으로 설정" onclick="img_reset()">
                 </div>
                 <div id="emp_info">
                     <label for="emp_name">
                         *이름
-                        <input type="text" id="emp_name" name="emp_name" value="">
+                        <input type="text" id="emp_name" name="emp_name" value="${eivo.emp_name}">
                     </label>
                     <label for="fieldCD">
                         기술분야
@@ -29,7 +30,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.fieldCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -44,7 +52,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.genderCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -59,17 +74,23 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
-                                    </c:otherwise>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.classCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>                                    </c:otherwise>
                                 </c:choose>
                             </c:forEach>
                         </select>
                     </label>
                     <label for="f_resident_num">
                         *주민번호
-                        <input type="text" id="f_resident_num" name="f_resident_num" value="" maxlength="6" oninput="insert_numChk(this)">
+                        <input type="text" id="f_resident_num" name="f_resident_num" value="${eivo.f_resident_num}" maxlength="6" oninput="insert_numChk(this)">
                         <span>-</span>
-                        <input type="password" name="b_resident_num" value="" maxlength="7" oninput="insert_numChk(this)"">
+                        <input type="password" name="b_resident_num" value="${eivo.b_resident_num}" maxlength="7" oninput="insert_numChk(this)"">
                     </label>
                     <label for="lebelCD">
                         기술 등급
@@ -80,7 +101,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.lebelCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -88,11 +116,11 @@
                     </label>
                     <label for="f_phone">
                         *전화번호
-                        <input type="text" id="f_phone" name="f_phone" value="" maxlength="3" oninput="insert_numChk(this)">
+                        <input type="text" id="f_phone" name="f_phone" value="${f_phone}" maxlength="3" oninput="insert_numChk(this)">
                         <span>-</span>
-                        <input type="text" id="m_phone" name="m_phone" value="" maxlength="4" oninput="insert_numChk(this)">
+                        <input type="text" id="m_phone" name="m_phone" value="${m_phone}" maxlength="4" oninput="insert_numChk(this)">
                         <span>-</span>
-                        <input type="text" id="e_phone" name="e_phone" value="" maxlength="4" oninput="insert_numChk(this)">
+                        <input type="text" id="e_phone" name="e_phone" value="${e_phone}" maxlength="4" oninput="insert_numChk(this)">
                     </label>
                     <label for="employment_statusCD">
                         계약 종류
@@ -103,7 +131,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.agreementCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -111,7 +146,7 @@
                     </label>
                     <label for="f_email">
                         이메일
-                        <input type="text" id="f_email" name="f_email" value="">@
+                        <input type="text" id="f_email" name="f_email" value="${eivo.f_email}">@
                         <select id="e_emailCD" name="e_emailCD">
                             <c:forEach items="${e_email_list}" var="k">
                                 <c:choose>
@@ -119,7 +154,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.e_emailCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -127,19 +169,19 @@
                     </label>
                     <label for="start_date">
                         입사일
-                        <input type="date" name="start_date" id="start_date" value="" min="0000-01-01" max="9999-12-31">
+                        <input type="date" name="start_date" id="start_date" value="${eivo.start_date}" min="0000-01-01" max="9999-12-31">
                     </label>
-                    <label for="">
+                    <label for="sample6_extraAddress">
                         주소
-                        <input type="text" id="sample6_postcode" name="zip_code" value="" placeholder="우편번호">
+                        <input type="text" id="sample6_postcode" name="zip_code" value="${eivo.zip_code}" placeholder="우편번호">
                         <input type="button" onclick="adress_search()" value="우편번호 찾기"><br>
-                        <input type="text" id="sample6_address" name="main_adress" value="" placeholder="주소"><br>
-                        <input type="text" id="sample6_detailAddress" name="detail_adress" value="" placeholder="상세주소">
-                        <input type="text" id="sample6_extraAddress" name="extra_adress" value="" placeholder="참고항목">
+                        <input type="text" id="sample6_address" name="main_adress" value="${eivo.main_adress}" placeholder="주소"><br>
+                        <input type="text" id="sample6_detailAddress" name="detail_adress" value="${eivo.detail_adress}" placeholder="상세주소">
+                        <input type="text" id="sample6_extraAddress" name="extra_adress" value="${eivo.extra_adress}" placeholder="참고항목">
                     </label>
                     <label for="last_date">
                         퇴사일
-                        <input type="date" name="last_date" value="" id="last_date" min="0000-01-01" max="9999-12-31">
+                        <input type="date" name="last_date" value="${eivo.last_date}" id="last_date" min="0000-01-01" max="9999-12-31">
                     </label>
                     <label for="employment_statusCD">
                         재직 상태
@@ -150,7 +192,14 @@
                                         <option value="${k.classification_code}">선택해주세요</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="${k.classification_code}">${k.code_name}</option>
+                                        <c:choose>
+                                            <c:when test="${k.classification_code == eivo.employment_statusCD}" >
+                                                <option value="${k.classification_code}" selected>${k.code_name}</option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${k.classification_code}">${k.code_name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
@@ -165,24 +214,38 @@
                             <c:when test="${k.classification_code == ''}" >
                             </c:when>
                             <c:otherwise>
-                                <input type="checkbox" name="skillCD" value="${k.classification_code}"><span>${k.code_name}</span>
+                                <c:choose>
+                                    <c:when test="${fn:contains(emp_skill_values, k.classification_code)}" >
+                                        <input type="checkbox" name="skillCD" value="${k.classification_code}" checked><span>${k.code_name}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="checkbox" name="skillCD" value="${k.classification_code}"><span>${k.code_name}</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>
                 </div>
             </article>
             <article>
-                <textarea name="note" value="" id="note"></textarea>
+                <fieldset>
+                    <legend>비고</legend>
+                    <textarea name="note" id="note">${eivo.note}</textarea>
+                </fieldset>
             </article>
-            <input type="button" value="사원 등록" onclick="emp_insert_go(this)">
-            <input type="button" value="닫기" onclick="close_insert()">
+            <input type="button" value="사원 수정" onclick="emp_update_go(this)">
+            <input type="button" value="상세보기 이동" onclick="move_detail()">
+            <input type="button" value="닫기" onclick="close_update()">
         </section>
         <script>
             // 삽입 함수
-            function insert_ajax(data){
+            function update_ajax(data){
+                for (let pair of data.entries()) {
+                    console.log(pair[0]+ ', '+ pair[1]); 
+                }
                 $.ajax({
                     type: "post",
-                    url: "emp_insert",
+                    url: "emp_update",
                     data: data,
                     contentType: false,
                     processData: false,
@@ -191,7 +254,7 @@
                         if(res != null){
                             let dl_area = $(".dl_area");
                             dl_area.empty()
-                            dl_area.load("/employee/emp_detail?emp_idx="+res)
+                            dl_area.load("/employee/emp_detail",{param: res})
                             emp_search_ajax();
                         }
                     },
@@ -202,7 +265,7 @@
             }
 
             // 유효성 검사 및 데이터 담기
-            function emp_insert_go(section){
+            function emp_update_go(section){
                 let formData = new FormData();
                 let insert_section = $(section).closest('section');
 
@@ -292,12 +355,20 @@
                 for (let pair of formData.entries()) {
                     console.log(pair[0]+ ', '+ pair[1]); 
                 }
-                insert_ajax(formData)
+                formData.append("emp_idx", "${emp_idx}");
+                let deleteChk = confirm("정말 수정하시겠습니까?");
+                if (deleteChk) {
+                    update_ajax(formData)
+                } else {
+                    alert("수정이 취소되었습니다.")
+                    return
+                }
+                update_ajax(formData)
             }
             
             // 사원 삽입 이미지 초기화
             function img_reset(){
-                $('#emp_insert_img').attr("src","resources/employee_image/default.png");
+                $('#emp_insert_img').attr("src","resources/employee_image/${eivo.image}");
                 $('#insert_img_file').val("")
             }
 
@@ -313,11 +384,17 @@
             // 숫자 입력 체크
             function insert_numChk(num) {
                 let value = num.value;
-                num.value = value.replace(/\D/g, '');
+                num.value = value.replace(/\D/g, ''); // 숫자가 아닌 모든 문자를 제거
             }
-            function close_insert(){
+
+            function close_update(){
                 $(".dl_box").remove()
                 $(".dl_area").remove()
+            }
+
+            function move_detail(){
+                $(".dl_area").empty()
+                $(".dl_area").load("/employee/emp_detail?emp_idx="+"${emp_idx}")
             }
 
             // 주소 찾기 api

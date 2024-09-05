@@ -5,10 +5,14 @@ import java.util.List;
 
 @Data
 public class ProjectVO {
-    private String project_idx, project_name, project_classCD,skill_condisionCD,project_statusCD,statusCD,
-    start_date,last_date,zip_code,main_adress,detail_adress,rep_pm_name,rep_pm_phone,note,
-    
+    private String project_idx, project_name, customer_idx, customer_name,cp_num,main_num,
+    project_classCD,skill_condisionCD,project_statusCD,statusCD,
+    p_start_date, p_last_date,p_zip_code,p_main_adress,p_detail_adress,p_extra_adress,rep_pm_name,rep_pm_phone,note,
+    f_phone,m_phone,e_phone,
+    f_cus_phone,m_cus_phone,e_cus_phone,
     project_class,skill_condision,project_status,status;
+
+    private List<String> skill_list;
 
     public void setCodeName(List<CodeVO> code_list){
         this.project_class = code_list.stream()
